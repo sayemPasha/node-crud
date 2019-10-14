@@ -8,6 +8,12 @@ const Joi = require('@hapi/joi');
 
 //enable json in express
 app.use(express.json());
+app.use(function(req, res, next) {
+    res.header("Access-Control-Allow-Origin", "*");
+    res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
+    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+    next();
+});
 
 let courses = [
     {id:1, name:"cat"},
@@ -22,6 +28,7 @@ app.listen(port, ()=>{
 
 //read all entry
 app.get('/api/courses', (request, response) => {
+    console.log("served");
     response.send(courses);
 });
 
@@ -38,8 +45,9 @@ app.get('/api/courses/:id', (request, response)=> {
 
 //create an entry
 app.post('/api/courses/', (request,response) => {
+    console.log("hit");
     const {error} = validateCourse(request.body); //destructuring
-    if(error) return resposne.status(400).send(error.details[0]);
+    if(error) return response.status(400).send(error.details[0]);
 
     const newEntry = {
         id : courses.length + 1, //FATAL ISSUE: if any entry is deleted, then length shortended, so again entry may overlap ID
@@ -55,10 +63,11 @@ app.post('/api/courses/', (request,response) => {
 app.put('/api/courses/:id', (request, response) => {
 
     const course = courses.find(course=> course.id === parseInt(request.params.id));
+    if(!course) return response.status(404).send("unknown id");
+
     const {error} = validateCourse(request.body);
     if(error) return response.status(400).send(error.details[0]);
     course.name = request.body.name;
-    
     response.send(course);
 });
 

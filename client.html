@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html>
+
+
+<head>
+
+<script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+
+<!-- Latest compiled and minified CSS -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+
+<!-- Optional theme -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css">
+
+<!-- Latest compiled and minified JavaScript -->
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" ></script>
+
+</head>
+
+<body>
+    <h1>Demo get</h1>
+    <div id="getDiv"></div>
+    <button id="get">get</button>
+
+    <h1>Demo post</h1>
+    <div id="postDiv"></div>
+    <input id="inputName" type="text" placeholder="e.g John"/>
+    <button id="post">post</button>
+
+    <h1>Demo put</h1>
+    <div id="updateDiv"></div>
+    <input id="inputID" type="number" placeholder="e.g 3"/>
+    <input id="inputUpdateName" type="text" placeholder="e.g name"/>
+    <button id="put">update</button>
+
+    <h1>Demo delete</h1>
+    <div id="deleteDiv"></div>
+    <input id="deleteID" type="number" placeholder="e.g 3"/>
+    <button id="delete">delete</button>
+
+
+</body>
+
+<script>
+
+$(document).ready(function(){
+
+    $("#get").click(function(){
+        $.ajax({
+            url: 'http://localhost:3000/api/courses',
+            type: 'get',
+            dataType: 'json',
+            contentType: 'application/json',
+            success: function (data) {
+                var str = '';
+                data.forEach(function(item){ 
+                    str += `<span> id: ${item.id} </span>` 
+                    str += `<span> name: ${item.name} </span></br>` 
+                }); 
+                $('#getDiv').html(str);
+            }
+
+        });
+    });
+
+    
+    $("#post").click(function(){
+        var name = $("#inputName").val();
+        if(name === '') return;
+        $("#inputName").val('');
+
+        var entry = { name: name};
+        $.ajax({
+            url: 'http://localhost:3000/api/courses',
+            type: 'post',
+            dataType: 'json',
+            contentType: 'application/json',
+            data: JSON.stringify(entry),
+            success: function (data) {
+
+                $('#postDiv')
+                    .append(`<span> name: ${data.name}, id: ${data.id} created </span> </br>`);
+                console.log(data);
+            },
+            error: function(data){
+                console.log(data.responseJSON.message);
+                $('#postDiv')
+                    .append(`<span>${data.responseJSON.message} </span> </br>`);
+                $()
+            }
+            
+        });
+    });
+
+    $("#put").click(function(){
+        var name = $("#inputUpdateName").val();
+        var id = $("#inputID").val();
+        if(name === '' || id === '') return;
+        $("#inputID").val('');
+        $("#inputUpdateName").val('');
+        
+        var entry = { name: name };
+        $.ajax({
+            url: 'http://localhost:3000/api/courses/' + id,
+            type: 'put',
+            dataType: 'json',
+            contentType: 'application/json',
+            data: JSON.stringify(entry),
+            success: function (data) {
+            
+                $('#updateDiv')
+                    .append(`<span> updated ${data.name}  </span> </br>`);
+                
+            },
+            error: function(data){
+                console.log(data.responseText);
+                $('#updateDiv')
+                    .append(`<span> ${data.responseText}  </span> </br>`);
+            }
+            
+        });
+    });
+
+    $("#delete").click(function(){
+        var id = $("#deleteID").val();
+        if(id === '') return;
+        $("#deleteID").val('');
+        
+        $.ajax({
+            url: 'http://localhost:3000/api/courses/' + id,
+            type: 'delete',
+            dataType: 'json',
+            contentType: 'application/json',
+            success: function (data) {
+            
+                $('#deleteDiv')
+                    .append(`<span> deleted ${data.id}  </span> </br>`);
+                
+            },
+            error: function(data){
+                console.log(data.responseText);
+                $('#deleteDiv')
+                    .append(`<span> ${data.responseText}  </span> </br>`);
+            }
+            
+        });
+    });
+  
+});
+
+</script>
+
+</html>
